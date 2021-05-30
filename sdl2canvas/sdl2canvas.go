@@ -2,6 +2,7 @@ package sdl2canvas
 
 import (
 	"fmt"
+	"github.com/fboerman/microworlds/microworlds"
 	"github.com/veandco/go-sdl2/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
@@ -18,7 +19,7 @@ type SDL2Canvas struct {
 	Running      bool
 }
 
-const CELLSIZE int16 = 100
+const CELLSIZE int16 = 10
 
 // Setup Window / renderer / texture
 func (s *SDL2Canvas) Setup(title string, windowWidth int, windowHeight int) {
@@ -72,17 +73,34 @@ func (s *SDL2Canvas) SetPixel(x int, y int, c sdl.Color) {
 	}
 }
 
-func (s *SDL2Canvas) SetSquare(x int16, y int16, c sdl.Color) {
+func (s *SDL2Canvas) SetSquare(x_ int, y_ int, c sdl.Color) {
+	x := int16(x_)
+	y := int16(y_)
 	var x_array = []int16{x * CELLSIZE, (x + 1) * CELLSIZE, (x + 1) * CELLSIZE, x * CELLSIZE}
 	var y_array = []int16{y * CELLSIZE, y * CELLSIZE, (y + 1) * CELLSIZE, (y + 1) * CELLSIZE}
 	gfx.FilledPolygonColor(s.renderer, x_array, y_array, c)
 }
 
-func (s *SDL2Canvas) Render() {
+func (s *SDL2Canvas) Render(w *microworlds.MicroWorld) {
+	s.renderer.SetDrawColor(0, 0, 0, 255)
 	s.renderer.Clear()
-	s.SetSquare(0, 0, sdl.Color{0, 0, 255, 255})
-	s.SetSquare(1, 0, sdl.Color{0, 255, 0, 255})
-	s.SetSquare(2, 0, sdl.Color{255, 0, 0, 255})
+
+	for i := int16(0); i < int16(s.windowHeight)/CELLSIZE; i++ {
+		gfx.HlineColor(s.renderer, 0, int32(s.windowWidth), int32(i*CELLSIZE), sdl.Color{255, 255, 255, 255})
+	}
+	for i := int16(0); i < int16(s.windowWidth)/CELLSIZE; i++ {
+		gfx.VlineColor(s.renderer, int32(i*CELLSIZE), 0, int32(s.windowHeight), sdl.Color{255, 255, 255, 255})
+	}
+
+	for y := 0; y < w.Heigth; y++ {
+		for x := 0; x < w.Width; x++ {
+			cell := w.GetCell(x, y)
+			if cell.Active {
+				s.SetSquare(x, y, sdl.Color{cell.C.R, cell.C.G, cell.C.B, cell.C.A})
+			}
+		}
+	}
+
 	s.renderer.Present()
 }
 
