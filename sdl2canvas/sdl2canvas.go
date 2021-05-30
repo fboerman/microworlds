@@ -85,12 +85,14 @@ func (s *SDL2Canvas) Render(w *microworlds.MicroWorld) {
 	s.renderer.SetDrawColor(0, 0, 0, 255)
 	s.renderer.Clear()
 
-	for i := int16(0); i < int16(s.windowHeight)/CELLSIZE; i++ {
-		gfx.HlineColor(s.renderer, 0, int32(s.windowWidth), int32(i*CELLSIZE), sdl.Color{255, 255, 255, 255})
-	}
-	for i := int16(0); i < int16(s.windowWidth)/CELLSIZE; i++ {
-		gfx.VlineColor(s.renderer, int32(i*CELLSIZE), 0, int32(s.windowHeight), sdl.Color{255, 255, 255, 255})
-	}
+	// // if you want gridlines activate below function.
+	// // if you want gridlines overwriting the cell surface then put these below the for loop
+	//for i := int16(0); i < int16(s.windowHeight)/CELLSIZE; i++ {
+	//	gfx.HlineColor(s.renderer, 0, int32(s.windowWidth), int32(i*CELLSIZE), sdl.Color{255, 255, 255, 255})
+	//}
+	//for i := int16(0); i < int16(s.windowWidth)/CELLSIZE; i++ {
+	//	gfx.VlineColor(s.renderer, int32(i*CELLSIZE), 0, int32(s.windowHeight), sdl.Color{255, 255, 255, 255})
+	//}
 
 	for y := 0; y < w.Heigth; y++ {
 		for x := 0; x < w.Width; x++ {

@@ -42,8 +42,10 @@ func (f *Forest) Ignite(n int) {
 	}
 }
 
-func (f *Forest) Tick() {
+func (f *Forest) Tick() bool {
 	// spread the fire and also give fire effect
+	// returns true if something changed, false otherwise
+	change := false
 	cells := f.w.GetActiveCells()
 	for _, c := range cells {
 		if c.Active {
@@ -60,14 +62,22 @@ func (f *Forest) Tick() {
 							n_ := f.w.GetCellW(n.X, n.Y)
 							n_.C.G = 0
 							n_.C.R = 255
+							change = true
 						}
 					}
 				}
 			}
 			if c.C.R > 0 {
 				// be decreasing the red step by step you get a nice dying fire effect
-				c_.C.R = c.C.R / 10
+				if c.C.R > 25 {
+					c_.C.R -= 25
+				} else {
+					c_.Active = false
+				}
+				change = true
 			}
 		}
 	}
+
+	return change
 }

@@ -10,8 +10,12 @@ import (
 func main() {
 	var canvas sdl2canvas.SDL2Canvas
 	var forest microworlds.Forest
-	p := float32(0.5)
-	n := 1
+	var p float32
+	var n int
+	fmt.Println("Please input float [0-1] for p% tree density")
+	fmt.Scanf("%f", &p)
+	fmt.Println("Please input integer for number of starting fires")
+	fmt.Scanf("%d", &n)
 
 	fmt.Printf("Generate forest with %d %% trees\n", int(p*100))
 	canvas.Setup("Microworlds", 1600, 900)
@@ -26,13 +30,15 @@ func main() {
 	canvas.Render(forest.GetWorld())
 
 	// tick loop
-	for i := 0; i < 1000; i++ {
-		forest.Tick()
+	for i := 0; ; i++ {
+		if !forest.Tick() {
+			break
+		}
 		forest.GetWorld().FlipBuffer()
 		canvas.Render(forest.GetWorld())
 		sdl.Delay(100)
-		fmt.Println(i)
+		fmt.Printf("Tick: %d\n", i)
 	}
 
-	sdl.Delay(10000)
+	sdl.Delay(5000)
 }
