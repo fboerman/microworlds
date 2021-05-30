@@ -8,9 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: compile and release
-        uses: fboerman/go-release.action@master
+      - name: setup go environment
+        uses: actions/setup-go@v2
+      - name: install system dependencies
+        run: |
+          sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+          sudo apt-get update -y -qq
+          sudo apt-get install libsdl2{,-image,-mixer,-ttf,-gfx}-dev
+      - name: install go dependencies
+        run: go mod download
+      - name: build
+        run: go build -o microworlds.bin
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOARCH: amd64
           GOOS: linux
+      - name: Upload the artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: 'microworlds.bin'
