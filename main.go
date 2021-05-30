@@ -18,8 +18,8 @@ func main() {
 	fmt.Scanf("%d", &n)
 
 	fmt.Printf("Generate forest with %d %% trees\n", int(p*100))
-	canvas.Setup("Microworlds", 1600, 900)
-	forest.Setup(p, 160, 90)
+	canvas.Setup("Microworlds", 1920, 1080)
+	forest.Setup(p, 192, 108)
 	forest.GetWorld().FlipBuffer()
 	defer canvas.Shutdown()
 
