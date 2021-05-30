@@ -8,10 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - name: install dependencies
-        run: apk add sdl2 sdl2-dev
       - name: compile and release
-        uses: ngs/go-release.action@v1.0.1
+        uses: fboerman/go-release.action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GOARCH: amd64
