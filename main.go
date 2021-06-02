@@ -13,9 +13,9 @@ func main() {
 	var p float32
 	var n int
 	fmt.Println("Please input float [0-1] for p% tree density")
-	fmt.Scanf("%f", &p)
+	fmt.Scanf("%f\n", &p)
 	fmt.Println("Please input integer for number of starting fires")
-	fmt.Scanf("%d", &n)
+	fmt.Scanf("%d\n", &n)
 
 	fmt.Printf("Generate forest with %d %% trees\n", int(p*100))
 	canvas.Setup("Microworlds", 1920, 1080)
