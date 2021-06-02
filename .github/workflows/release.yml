@@ -26,9 +26,11 @@ jobs:
       - name: Compress artifacts
         run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.bin
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v2
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: microworlds-${{ github.event.release.tag_name }}.tar.gz
+          args: microworlds-${{ github.event.release.tag_name }}.tar.gz
   release-windows:
     name: release windows
     runs-on: windows-latest
@@ -43,7 +45,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: mingw-w64-x86_64-go mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_gfx
+          install: mingw-w64-x86_64-go mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_gfx zip
       - name: Build release
         run: go build -tags static -ldflags "-s -w" -o microworlds.exe
         env:
@@ -52,8 +54,10 @@ jobs:
           CGO_ENABLED: 1
           CC: gcc
       - name: Compress artifacts
-        run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.exe
+        run: zip microworlds-${{ github.event.release.tag_name }}.zip microworlds.exe
       - name: Upload the artifacts
-        uses: actions/upload-artifact@v2
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: microworlds-${{ github.event.release.tag_name }}.tar.gz
+          args: microworlds-${{ github.event.release.tag_name }}.zip
