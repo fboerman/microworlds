@@ -5,6 +5,7 @@ import (
 	"github.com/fboerman/microworlds/microworlds"
 	"github.com/fboerman/microworlds/sdl2canvas"
 	"github.com/veandco/go-sdl2/sdl"
+	"time"
 )
 
 func main() {
@@ -34,10 +35,14 @@ func main() {
 		if !forest.Tick() {
 			break
 		}
-		forest.GetWorld().FlipBuffer()
-		canvas.Render(forest.GetWorld())
-		sdl.Delay(100)
 		fmt.Printf("Tick: %d\n", i)
+		start := time.Now()
+		forest.GetWorld().FlipBuffer()
+		elapsed1 := time.Since(start)
+		canvas.Render(forest.GetWorld())
+		elapsed2 := time.Since(start)
+		fmt.Printf("Took %s, of which %s was buffer flip\n", elapsed2, elapsed1)
+		sdl.Delay(100)
 	}
 
 	sdl.Delay(5000)

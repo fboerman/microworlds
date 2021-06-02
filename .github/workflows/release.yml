@@ -52,7 +52,7 @@ jobs:
           CGO_ENABLED: 1
           CC: gcc
       - name: Compress artifacts
-        run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.bin
+        run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.exe
       - name: Upload the artifacts
         uses: actions/upload-artifact@v2
         with:
