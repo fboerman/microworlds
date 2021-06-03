@@ -19,10 +19,12 @@ jobs:
       - name: Install go dependencies
         run: go mod download
       - name: Build release
-        run: go build -o microworlds.bin
+        run: go build -tags static -ldflags "-s -w" -o microworlds.bin
         env:
           GOARCH: amd64
           GOOS: linux
+          CGO_ENABLED: 1
+          CC: gcc
       - name: Compress artifacts
         run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.bin
       - name: Upload the artifacts to release
