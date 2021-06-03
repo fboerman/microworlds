@@ -25,12 +25,12 @@ jobs:
           GOOS: linux
       - name: Compress artifacts
         run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.bin
-      - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload the artifacts to release
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          args: microworlds-${{ github.event.release.tag_name }}.tar.gz
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: microworlds-${{ github.event.release.tag_name }}.tar.gz
+          tag: ${{ github.ref }}
   release-windows:
     name: release windows
     runs-on: windows-latest
@@ -55,9 +55,10 @@ jobs:
           CC: gcc
       - name: Compress artifacts
         run: zip microworlds-${{ github.event.release.tag_name }}.zip microworlds.exe
-      - name: Upload the artifacts
-        uses: skx/github-action-publish-binaries@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload the artifacts to release
+        uses: svenstaro/upload-release-action@2.2.1
         with:
-          args: microworlds-${{ github.event.release.tag_name }}.zip
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: microworlds-${{ github.event.release.tag_name }}.zip
+          tag: ${{ github.ref }}
+
