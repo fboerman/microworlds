@@ -1,14 +1,31 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/fboerman/microworlds/microworlds"
 	"github.com/fboerman/microworlds/sdl2canvas"
 	"github.com/veandco/go-sdl2/sdl"
+	"log"
+	"os"
+	"runtime/pprof"
 	"time"
 )
 
+var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+
 func main() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
+
+
 	var canvas sdl2canvas.SDL2Canvas
 	var forest microworlds.Forest
 	var p float32

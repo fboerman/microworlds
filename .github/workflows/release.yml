@@ -1,6 +1,5 @@
 on:
-  release:
-    types: [published]
+  push
 name: Build Release
 jobs:
   release-linux-amd64:
@@ -19,7 +18,7 @@ jobs:
       - name: Install go dependencies
         run: go mod download
       - name: Build release
-        run: go build -tags static -ldflags "-s -w" -o microworlds.bin
+        run: go build -o microworlds.bin
         env:
           GOARCH: amd64
           GOOS: linux
@@ -49,7 +48,7 @@ jobs:
           update: true
           install: mingw-w64-x86_64-go mingw-w64-x86_64-gcc mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf mingw-w64-x86_64-SDL2_gfx zip
       - name: Build release
-        run: go build -tags static -ldflags "-s -w" -o microworlds.exe
+        run: go build -o microworlds.exe
         env:
           GOARCH: amd64
           GOOS: windows
