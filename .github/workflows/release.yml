@@ -24,14 +24,11 @@ jobs:
           GOOS: linux
           CGO_ENABLED: 1
           CC: gcc
-      - name: Compress artifacts
-        run: tar zcvf microworlds-${{ github.event.release.tag_name }}.tar.gz microworlds.bin
-      - name: Upload the artifacts to release
-        uses: svenstaro/upload-release-action@2.2.1
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: microworlds-${{ github.event.release.tag_name }}.tar.gz
-          tag: ${{ github.ref }}
+          name: microworlds-linux
+          path: microworlds.bin
   release-windows:
     name: release windows
     runs-on: windows-latest
@@ -56,10 +53,9 @@ jobs:
           CC: gcc
       - name: Compress artifacts
         run: zip microworlds-${{ github.event.release.tag_name }}.zip microworlds.exe
-      - name: Upload the artifacts to release
-        uses: svenstaro/upload-release-action@2.2.1
+      - name: Upload the artifacts
+        uses: actions/upload-artifact@v2
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: microworlds-${{ github.event.release.tag_name }}.zip
-          tag: ${{ github.ref }}
+          name: microworlds-windows
+          path: microworlds.exe
 
