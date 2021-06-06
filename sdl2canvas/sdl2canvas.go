@@ -3,7 +3,6 @@ package sdl2canvas
 import (
 	"fmt"
 	"github.com/fboerman/microworlds/microworlds"
-	"github.com/veandco/go-sdl2/gfx"
 	"github.com/veandco/go-sdl2/sdl"
 	"os"
 )
@@ -13,13 +12,15 @@ type SDL2Canvas struct {
 	windowHeight int
 	window       *sdl.Window
 	renderer     *sdl.Renderer
+	texture      *sdl.Texture
 	pixels       []byte
 	event        sdl.Event
 	err          error
 	Running      bool
 }
 
-const CELLSIZE int16 = 10
+const CELLSIZE int = 10
+const SPACING int = 0
 
 // Setup Window / renderer / texture
 func (s *SDL2Canvas) Setup(title string, windowWidth int, windowHeight int) {
@@ -42,6 +43,14 @@ func (s *SDL2Canvas) Setup(title string, windowWidth int, windowHeight int) {
 	s.renderer, s.err = sdl.CreateRenderer(s.window, -1, sdl.RENDERER_ACCELERATED)
 	if s.err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", s.err)
+		os.Exit(1)
+	}
+
+	s.texture, s.err = s.renderer.CreateTexture(
+		sdl.PIXELFORMAT_ABGR8888, sdl.TEXTUREACCESS_STREAMING,
+		int32(windowWidth), int32(windowHeight))
+	if s.err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", s.texture)
 		os.Exit(1)
 	}
 
@@ -73,40 +82,35 @@ func (s *SDL2Canvas) SetPixel(x int, y int, c sdl.Color) {
 	}
 }
 
-func (s *SDL2Canvas) SetSquare(x_ int, y_ int, c sdl.Color) {
-	x := int16(x_)
-	y := int16(y_)
-	var x_array = []int16{x * CELLSIZE, (x + 1) * CELLSIZE, (x + 1) * CELLSIZE, x * CELLSIZE}
-	var y_array = []int16{y * CELLSIZE, y * CELLSIZE, (y + 1) * CELLSIZE, (y + 1) * CELLSIZE}
-	gfx.FilledPolygonColor(s.renderer, x_array, y_array, c)
+func (s *SDL2Canvas) SetSquare(x_ int, y_ int, spacing int, c sdl.Color) {
+	x_ *= CELLSIZE
+	y_ *= CELLSIZE
+	for y := 0; y < CELLSIZE-spacing; y++ {
+		for x := 0; x < CELLSIZE-spacing; x++ {
+			s.SetPixel(x_+x, y_+y, c)
+		}
+	}
 }
 
 func (s *SDL2Canvas) Render(w *microworlds.MicroWorld) {
-	s.renderer.SetDrawColor(0, 0, 0, 255)
-	s.renderer.Clear()
-
-	// // if you want gridlines activate below function.
-	// // if you want gridlines overwriting the cell surface then put these below the for loop
-	//for i := int16(0); i < int16(s.windowHeight)/CELLSIZE; i++ {
-	//	gfx.HlineColor(s.renderer, 0, int32(s.windowWidth), int32(i*CELLSIZE), sdl.Color{255, 255, 255, 255})
-	//}
-	//for i := int16(0); i < int16(s.windowWidth)/CELLSIZE; i++ {
-	//	gfx.VlineColor(s.renderer, int32(i*CELLSIZE), 0, int32(s.windowHeight), sdl.Color{255, 255, 255, 255})
-	//}
-
 	for y := 0; y < w.Heigth; y++ {
 		for x := 0; x < w.Width; x++ {
 			cell := w.GetCell(x, y)
 			if cell.Active {
-				s.SetSquare(x, y, sdl.Color{cell.C.R, cell.C.G, cell.C.B, cell.C.A})
+				s.SetSquare(x, y, SPACING, sdl.Color{cell.C.R, cell.C.G, cell.C.B, cell.C.A})
 			}
 		}
 	}
 
+	s.texture.Update(nil, s.pixels, int(s.windowWidth*4))
+	s.renderer.SetDrawColor(0, 0, 0, 255)
+	s.renderer.Clear()
+	s.renderer.Copy(s.texture, nil, nil)
 	s.renderer.Present()
 }
 
 func (s *SDL2Canvas) Shutdown() {
+	s.texture.Destroy()
 	s.renderer.Destroy()
 	s.window.Destroy()
 	sdl.Quit()
