@@ -6,58 +6,63 @@ import (
 	"image/color"
 )
 
-type Cell struct {
+// code for hexagon stuff inspired by:
+// https://www.redblobgames.com/grids/hexagons/
+// https://www.redblobgames.com/grids/hexagons/implementation.html
+// even-q offset coordinate system with flat tops is used
+
+type Hex struct {
 	Active bool
 	C      color.RGBA
-	X      int
-	Y      int
+	Q      int
+	R      int
 }
 
 type MicroWorld struct {
-	Width   int
-	Heigth  int
-	cells_R []Cell
-	cells_W []Cell
+	Width  int
+	Heigth int
+	hexs_R []Hex
+	hexs_W []Hex
 }
 
 func (w *MicroWorld) Setup(width int, heigth int) {
 	w.Width = width
 	w.Heigth = heigth
-	w.cells_R = make([]Cell, width*heigth)
-	w.cells_W = make([]Cell, width*heigth)
+	w.hexs_R = make([]Hex, width*heigth)
+	w.hexs_W = make([]Hex, width*heigth)
 
-	fmt.Printf("cells: %d, Width:%d, Heigth: %d\n", len(w.cells_R), w.Width, w.Heigth)
+	fmt.Printf("cells: %d, Width:%d, Heigth: %d\n", len(w.hexs_R), w.Width, w.Heigth)
 	for y := 0; y < heigth; y++ {
 		for x := 0; x < width; x++ {
-			cell := w.GetCellW(x, y)
-			cell.X = x
-			cell.Y = y
-			//fmt.Println(cell.X, cell.Y)
+			cell := w.GetHexW(x, y)
+			cell.Q = x
+			cell.R = y
+			//fmt.Println(cell.Q, cell.R)
 		}
 	}
 }
 
 func (w *MicroWorld) FlipBuffer() {
-	copy(w.cells_R, w.cells_W)
+	copy(w.hexs_R, w.hexs_W)
 }
 
-func (w *MicroWorld) GetCell(x int, y int) *Cell {
+func (w *MicroWorld) GetHex(q int, r int) *Hex {
 	// returns pointer to the cell at the coordinate from current read buffer
-	if x < 0 || x >= w.Width || y < 0 || y >= w.Heigth {
+	if q < 0 || q >= w.Width || r < 0 || r >= w.Heigth {
 		return nil
 	}
-	return &w.cells_R[y*w.Width+x]
+	return &w.hexs_R[r*w.Width+q]
 }
 
-func (w *MicroWorld) GetCellW(x int, y int) *Cell {
+func (w *MicroWorld) GetHexW(q int, r int) *Hex {
 	// returns pointer to the cell at the coordinate from current write buffer
-	if x < 0 || x >= w.Width || y < 0 || y >= w.Heigth {
+	if q < 0 || q >= w.Width || r < 0 || r >= w.Heigth {
 		return nil
 	}
-	return &w.cells_W[y*w.Width+x]
+	return &w.hexs_W[r*w.Width+q]
 }
 
-func (w *MicroWorld) GetNeighborCells(x int, y int) []*Cell {
+func (w *MicroWorld) GetNeighborHexs(q int, r int) []*Hex {
 	directions := [8][2]int{
 		{-1, -1},
 		{0, -1},
@@ -68,9 +73,9 @@ func (w *MicroWorld) GetNeighborCells(x int, y int) []*Cell {
 		{0, +1},
 		{+1, +1},
 	}
-	cells := []*Cell{}
+	cells := []*Hex{}
 	for _, dir := range directions {
-		c := w.GetCell(x+dir[0], y+dir[1])
+		c := w.GetHex(q+dir[0], r+dir[1])
 		if c != nil {
 			cells = append(cells, c)
 		}
@@ -79,9 +84,9 @@ func (w *MicroWorld) GetNeighborCells(x int, y int) []*Cell {
 	return cells
 }
 
-func (w *MicroWorld) NumActiveCells() int {
+func (w *MicroWorld) NumActiveHex() int {
 	num := 0
-	for _, c := range w.cells_R {
+	for _, c := range w.hexs_R {
 		if c.Active {
 			num++
 		}
@@ -90,19 +95,19 @@ func (w *MicroWorld) NumActiveCells() int {
 	return num
 }
 
-func (w *MicroWorld) GetActiveCells() []*Cell {
-	cells := []*Cell{}
-	for i, c := range w.cells_R {
+func (w *MicroWorld) GetActiveHexs() []*Hex {
+	cells := []*Hex{}
+	for i, c := range w.hexs_R {
 		if c.Active {
-			cells = append(cells, &w.cells_R[i])
+			cells = append(cells, &w.hexs_R[i])
 		}
 	}
 
 	return cells
 }
 
-func (w *MicroWorld) GetRandomActiveCell() *Cell {
-	cells := w.GetActiveCells()
+func (w *MicroWorld) GetRandomActiveHex() *Hex {
+	cells := w.GetActiveHexs()
 	if len(cells) == 0 {
 		return nil
 	}

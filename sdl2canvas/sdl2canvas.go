@@ -7,6 +7,12 @@ import (
 	"os"
 )
 
+// code for hexagon stuff inspired by:
+// https://www.redblobgames.com/grids/hexagons/
+// https://www.redblobgames.com/grids/hexagons/implementation.html
+// even-q offset coordinate system with flat tops is used
+
+
 type SDL2Canvas struct {
 	windowWidth  int
 	windowHeight int
@@ -92,12 +98,41 @@ func (s *SDL2Canvas) SetSquare(x_ int, y_ int, spacing int, c sdl.Color) {
 	}
 }
 
+func (s *SDL2Canvas) SetHex(q_ int, r_ int, spacing int, c sdl.Color) {
+	q_ *= CELLSIZE
+	r_ *= CELLSIZE
+	for q := 0; q < CELLSIZE; q++ {
+		for r := 0; r < CELLSIZE; r++ {
+			s.SetPixel(q_+r, r_+q, c)
+		}
+	}
+}
+
 func (s *SDL2Canvas) Render(w *microworlds.MicroWorld) {
-	for y := 0; y < w.Heigth; y++ {
-		for x := 0; x < w.Width; x++ {
-			cell := w.GetCell(x, y)
-			if cell.Active {
-				s.SetSquare(x, y, SPACING, sdl.Color{cell.C.R, cell.C.G, cell.C.B, cell.C.A})
+	//// for squares:
+	//// iterate all cells and write the active ones to the buffer
+	//for y := 0; y < w.Heigth; y++ {
+	//	for x := 0; x < w.Width; x++ {
+	//		cell := w.GetHex(x, y)
+	//		if cell.Active {
+	//			s.SetSquare(x, y, SPACING, sdl.Color{cell.C.R, cell.C.G, cell.C.B, cell.C.A})
+	//		}
+	//	}
+	//}
+
+	// for hexes:
+	// it is quite complex to get all pixels needed to fill a hex from the hex coordinate
+	// so instead simply check all pixels and get the hex object that is connected from it
+	// this is a quite naive take TODO: think of something more optimal here
+	for y := 0; y < s.windowHeight; y++ {
+		for x := 0; x < s.windowWidth; x++ {
+			q, r := PixelToHex(x, y, CELLSIZE)
+			if q < 0 || r < 0 {
+				continue
+			}
+			hex := w.GetHex(q, r)
+			if hex.Active {
+				s.SetPixel(x, y, sdl.Color{hex.C.R, hex.C.G, hex.C.B, hex.C.A})
 			}
 		}
 	}
